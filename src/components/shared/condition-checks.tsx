@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ConditionCheck } from "@/types/api";
 
 export function ConditionChecks({ checks, side }: { checks: ConditionCheck[]; side: string }) {
-  const filtered = checks.filter((c) => c.side === side);
+  const filtered = checks.filter((c) => c.side === side).sort((a, b) => a.conditionName.localeCompare(b.conditionName));
   if (filtered.length === 0) return null;
 
   return (
@@ -18,7 +18,12 @@ export function ConditionChecks({ checks, side }: { checks: ConditionCheck[]; si
           )}
         >
           {/* Pass/fail indicator */}
-          <span className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-bold", c.passed ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400")}>
+          <span
+            className={cn(
+              "flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-bold",
+              c.passed ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400",
+            )}
+          >
             {c.passed ? "✓" : "✗"}
           </span>
 
@@ -33,7 +38,12 @@ export function ConditionChecks({ checks, side }: { checks: ConditionCheck[]; si
 
           {/* Got */}
           <span className="text-zinc-600">got</span>
-          <span className={cn("rounded bg-surface-3 px-1.5 py-0.5 font-semibold", c.passed ? "text-emerald-300" : "text-red-300")}>
+          <span
+            className={cn(
+              "rounded bg-surface-3 px-1.5 py-0.5 font-semibold",
+              c.passed ? "text-emerald-300" : "text-red-300",
+            )}
+          >
             {c.actualValue}
           </span>
         </div>
@@ -43,9 +53,7 @@ export function ConditionChecks({ checks, side }: { checks: ConditionCheck[]; si
 }
 
 function formatConditionName(name: string): string {
-  return name
-    .replace(/_/g, " ")
-    .replace(/\b(htf|rsi|ema|atr)\b/gi, (m) => m.toUpperCase());
+  return name.replace(/_/g, " ").replace(/\b(htf|rsi|ema|atr)\b/gi, (m) => m.toUpperCase());
 }
 
 export function EvaluationSummary({
@@ -77,10 +85,22 @@ export function EvaluationSummary({
 
 export function ResultBadge({ result }: { result: string }) {
   if (result === "signal_long") {
-    return <span className="rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1 text-xs font-semibold text-emerald-400">⬆ LONG SIGNAL</span>;
+    return (
+      <span className="rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1 text-xs font-semibold text-emerald-400">
+        ⬆ LONG SIGNAL
+      </span>
+    );
   }
   if (result === "signal_short") {
-    return <span className="rounded-md bg-red-500/15 border border-red-500/30 px-2.5 py-1 text-xs font-semibold text-red-400">⬇ SHORT SIGNAL</span>;
+    return (
+      <span className="rounded-md bg-red-500/15 border border-red-500/30 px-2.5 py-1 text-xs font-semibold text-red-400">
+        ⬇ SHORT SIGNAL
+      </span>
+    );
   }
-  return <span className="rounded-md bg-zinc-500/10 border border-zinc-500/20 px-2.5 py-1 text-xs font-medium text-zinc-500">— REJECTED</span>;
+  return (
+    <span className="rounded-md bg-zinc-500/10 border border-zinc-500/20 px-2.5 py-1 text-xs font-medium text-zinc-500">
+      — REJECTED
+    </span>
+  );
 }

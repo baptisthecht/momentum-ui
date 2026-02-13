@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { NavLinks } from "./nav-links";
+import { SignOut } from "./sign-out";
 
 export async function Sidebar() {
   const session = await auth();
@@ -32,6 +32,7 @@ export async function Sidebar() {
             <p className="truncate text-xs font-medium text-zinc-300">{user?.name ?? user?.email ?? "User"}</p>
             <p className="truncate text-[10px] text-zinc-600">{user?.email}</p>
           </div>
+          <SignOut />
         </div>
       </div>
     </aside>
