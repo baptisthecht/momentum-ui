@@ -53,11 +53,16 @@ export const getRunningSessions = () => apiFetch<any[]>("/sessions/running");
 export const getSession = (id: string) => apiFetch<any>(`/sessions/${id}`);
 export const startSession = (data: any) =>
   apiFetch<any>("/sessions/start", { method: "POST", body: JSON.stringify(data) });
-export const stopSession = (id: string) => apiFetch<any>(`/sessions/${id}/stop`, { method: "POST" });
+export const stopSession = (id: string) =>
+  apiFetch<any>(`/sessions/${id}/stop`, { method: "POST" });
 
 // ── Trades ──
 export const getTrades = (sessionId: string, limit = 100) =>
   apiFetch<any[]>(`/trades/session/${sessionId}?limit=${limit}`);
+
+/** Positions with aggregated P&L per position */
+export const getPositionsWithPnl = (sessionId: string) =>
+  apiFetch<any[]>(`/trades/session/${sessionId}/positions`);
 
 // ── Signal Evaluations ──
 export const getEvaluations = (sessionId: string, limit = 50, result?: string) => {
@@ -66,3 +71,9 @@ export const getEvaluations = (sessionId: string, limit = 50, result?: string) =
   return apiFetch<any[]>(url);
 };
 export const getEvaluation = (id: string) => apiFetch<any>(`/signal-evaluations/${id}`);
+
+/** Aggregated eval stats (total counts, no limit) */
+export const getEvalStats = (sessionId: string) =>
+  apiFetch<{ total: number; signals: number; rejected: number; longSignals: number; shortSignals: number }>(
+    `/signal-evaluations/session/${sessionId}/stats`,
+  );

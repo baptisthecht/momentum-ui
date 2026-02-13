@@ -157,6 +157,7 @@ export interface SignalEvaluation {
   id: string;
   sessionId: string;
   candleId: string;
+  candle?: Candle;
   symbol: string;
   result: EvaluationResult;
   closePrice: number;

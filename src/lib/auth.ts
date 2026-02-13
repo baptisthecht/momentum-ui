@@ -1,6 +1,6 @@
-import { apiLogin } from "@/lib/api";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { apiLogin } from "@/lib/api";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: { signIn: "/login" },
@@ -16,7 +16,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
         try {
-          const { user, token } = await apiLogin(credentials.email as string, credentials.password as string);
+          const { user, token } = await apiLogin(
+            credentials.email as string,
+            credentials.password as string,
+          );
           return { id: user.id, email: user.email, name: user.displayName, accessToken: token };
         } catch {
           return null;
