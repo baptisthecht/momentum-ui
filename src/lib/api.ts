@@ -56,6 +56,14 @@ export const updateBitgetKeys = (data: { apiKey: string; apiSecret: string; pass
 // ── Strategies ──
 export const getStrategies = () => apiFetch<any[]>("/strategies");
 export const getStrategy = (id: string) => apiFetch<any>(`/strategies/${id}`);
+export const createStrategy = (data: any) =>
+  apiFetch<any>("/strategies", { method: "POST", body: JSON.stringify(data) });
+export const updateStrategy = (id: string, data: any) =>
+  apiFetch<any>(`/strategies/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+export const deleteStrategy = (id: string) =>
+  apiFetch<void>(`/strategies/${id}`, { method: "DELETE" });
+export const duplicateStrategy = (id: string) =>
+  apiFetch<any>(`/strategies/${id}/duplicate`, { method: "POST" });
 
 // ── Sessions ──
 export const getSessions = () => apiFetch<any[]>("/sessions");
