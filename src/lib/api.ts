@@ -14,18 +14,13 @@ async function apiFetch<T>(path: string, opts: RequestInit = {}): Promise<T> {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...((opts.headers as Record<string, string>) ?? {}),
   };
-
   const res = await fetch(`${API}${path}`, {
-    ...opts,
-    headers,
-    next: { revalidate: 0 }, // always fresh for trading data
+    ...opts, headers, next: { revalidate: 0 },
   });
-
   if (!res.ok) {
     const body = await res.text().catch(() => "");
     throw new Error(`API ${res.status}: ${body}`);
   }
-
   return res.json();
 }
 
@@ -40,8 +35,23 @@ export async function apiLogin(email: string, password: string) {
   return res.json() as Promise<{ user: any; token: string }>;
 }
 
+export async function apiRegister(email: string, password: string, displayName?: string) {
+  const res = await fetch(`${API}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, displayName }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.message ?? "Registration failed");
+  }
+  return res.json() as Promise<{ user: any; token: string }>;
+}
+
 // ── Users ──
 export const getProfile = () => apiFetch<any>("/users/me");
+export const updateBitgetKeys = (data: { apiKey: string; apiSecret: string; passphrase: string }) =>
+  apiFetch<any>("/users/me/bitget-keys", { method: "PATCH", body: JSON.stringify(data) });
 
 // ── Strategies ──
 export const getStrategies = () => apiFetch<any[]>("/strategies");
@@ -51,16 +61,23 @@ export const getStrategy = (id: string) => apiFetch<any>(`/strategies/${id}`);
 export const getSessions = () => apiFetch<any[]>("/sessions");
 export const getRunningSessions = () => apiFetch<any[]>("/sessions/running");
 export const getSession = (id: string) => apiFetch<any>(`/sessions/${id}`);
+export const getSessionDashboard = (id: string) => apiFetch<any>(`/sessions/${id}/dashboard`);
 export const startSession = (data: any) =>
   apiFetch<any>("/sessions/start", { method: "POST", body: JSON.stringify(data) });
 export const stopSession = (id: string) =>
   apiFetch<any>(`/sessions/${id}/stop`, { method: "POST" });
 
+// ── Sync ──
+export const getSyncSnapshot = (sessionId: string) =>
+  apiFetch<any>(`/sessions/${sessionId}/sync/snapshot`);
+export const reconcileSession = (sessionId: string) =>
+  apiFetch<any>(`/sessions/${sessionId}/sync/reconcile`, { method: "POST" });
+export const getFills = (sessionId: string, limit = 50) =>
+  apiFetch<any[]>(`/sessions/${sessionId}/sync/fills?limit=${limit}`);
+
 // ── Trades ──
 export const getTrades = (sessionId: string, limit = 100) =>
   apiFetch<any[]>(`/trades/session/${sessionId}?limit=${limit}`);
-
-/** Positions with aggregated P&L per position */
 export const getPositionsWithPnl = (sessionId: string) =>
   apiFetch<any[]>(`/trades/session/${sessionId}/positions`);
 
@@ -71,9 +88,5 @@ export const getEvaluations = (sessionId: string, limit = 50, result?: string) =
   return apiFetch<any[]>(url);
 };
 export const getEvaluation = (id: string) => apiFetch<any>(`/signal-evaluations/${id}`);
-
-/** Aggregated eval stats (total counts, no limit) */
 export const getEvalStats = (sessionId: string) =>
-  apiFetch<{ total: number; signals: number; rejected: number; longSignals: number; shortSignals: number }>(
-    `/signal-evaluations/session/${sessionId}/stats`,
-  );
+  apiFetch<any>(`/signal-evaluations/session/${sessionId}/stats`);
